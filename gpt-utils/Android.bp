@@ -16,7 +16,7 @@
 
 
 cc_library {
-    name: "libgptutils.taoyao",
+    name: "libgptutils.moonstone",
     vendor: true,
     recovery_available: true,
     shared_libs: [
@@ -28,7 +28,6 @@ cc_library {
         "-Wall",
         "-Werror",
         "-Wno-unused-parameter",
-        "-D_GENERIC_KERNEL_HEADERS",
     ],
     srcs: [
         "gpt-utils.cpp",

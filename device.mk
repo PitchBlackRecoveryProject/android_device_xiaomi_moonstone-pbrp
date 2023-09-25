@@ -1,11 +1,11 @@
 #
-# Copyright (C) 2021 The TWRP Open Source Project
+# Copyright (C) 2020 The TwrpBuilder Open-Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,42 +14,23 @@
 # limitations under the License.
 #
 
-LOCAL_PATH := device/xiaomi/taoyao
+# Configure base.mk
+$(call inherit-product, $(SRC_TARGET_DIR)/product/base.mk)
 
-# Enable updating of APEXes
-$(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
+# Configure core_64_bit_only.mk
+$(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
 
-# Enable virtual A/B OTA
+# Configure gsi_keys.mk
+$(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_keys.mk)
+
+# Configure Virtual A/B
 $(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota.mk)
 
 # Configure SDCard replacement functionality
 $(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
 
-# Installs gsi keys into ramdisk, to boot a developer GSI with verified boot.
-$(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_keys.mk)
-
-# API
-PRODUCT_TARGET_VNDK_VERSION := 30
-PRODUCT_SHIPPING_API_LEVEL := 31
-
-# Dynamic partitions
-PRODUCT_USE_DYNAMIC_PARTITIONS := true
-
-# A/B
-ENABLE_VIRTUAL_AB := true
-BOARD_USES_RECOVERY_AS_BOOT := true
-AB_OTA_UPDATER := true
-AB_OTA_PARTITIONS += \
-    boot \
-    dtbo \
-    system \
-    system_ext \
-    product \
-    vendor \
-    vendor_boot \
-    odm \
-    vbmeta \
-    vbmeta_system \
+# Configure twrp
+$(call inherit-product, vendor/twrp/config/common.mk)
 
 # A/B
 AB_OTA_POSTINSTALL_CONFIG += \
@@ -58,61 +39,62 @@ AB_OTA_POSTINSTALL_CONFIG += \
     FILESYSTEM_TYPE_system=ext4 \
     POSTINSTALL_OPTIONAL_system=true
 
-# Boot control HAL
 PRODUCT_PACKAGES += \
-    bootctrl.lahaina.recovery \
+    otapreopt_script
+
+# Bootctrl
+PRODUCT_PACKAGES += \
+    bootctrl.moonstone.recovery \
     android.hardware.boot@1.1-impl-qti.recovery
 
 PRODUCT_PACKAGES_DEBUG += \
     bootctl
-    
-PRODUCT_PACKAGES += \
-    otapreopt_script \
-    cppreopts.sh \
-    update_engine \
-    update_verifier \
-    update_engine_sideload
 
-#  Health
-PRODUCT_PACKAGES += \
-    android.hardware.health@2.1-impl.recovery \
-    android.hardware.health@2.1-service
+# SHIPPING API
+PRODUCT_SHIPPING_API_LEVEL := 30
+# VNDK API
+PRODUCT_TARGET_VNDK_VERSION := 31
 
-# fastbootd
+# Soong namespaces
+PRODUCT_SOONG_NAMESPACES += \
+    $(DEVICE_PATH)
+
+PRODUCT_USE_DYNAMIC_PARTITIONS := true
+
+# Kernel
+TWRP_REQUIRED_MODULES += \
+	miui_prebuilt
+
+# Twrp Decryption
+PRODUCT_PACKAGES += \
+    qcom_decrypt \
+    qcom_decrypt_fbe
+
+# Fastbootd
 PRODUCT_PACKAGES += \
     android.hardware.fastboot@1.0-impl-mock \
     fastbootd
-    
-# Soong namespaces
-PRODUCT_SOONG_NAMESPACES += \
-    $(LOCAL_PATH) \
-    hardware/qcom-caf/bootctrl \
-    vendor/qcom/opensource/commonsys-intf/display
 
-# Crypto
-TW_INCLUDE_CRYPTO := true
-TW_INCLUDE_CRYPTO_FBE := true
-TW_INCLUDE_FBE_METADATA_DECRYPT := true
-PLATFORM_SECURITY_PATCH := 2099-12-31
-VENDOR_SECURITY_PATCH := 2099-12-31
-PLATFORM_VERSION := 16.1.0
-PLATFORM_VERSION_LAST_STABLE := $(PLATFORM_VERSION)
-BOARD_USES_QCOM_FBE_DECRYPTION := true
+# Update engine
+PRODUCT_PACKAGES += \
+    update_engine \
+    update_engine_sideload \
+    update_verifier
 
-TW_LOAD_VENDOR_MODULES := "goodix_core.ko adsp_loader_dlkm.ko qti_battery_charger_main_odin.ko xiaomi_touch.ko focaltech_touch.ko"
+PRODUCT_PACKAGES_DEBUG += \
+    update_engine_client
 
+# Misc.
 TARGET_RECOVERY_DEVICE_MODULES += \
-    libion \
+    libandroidicu \
     libdisplayconfig.qti \
+    libion \
     vendor.display.config@1.0 \
-    vendor.display.config@2.0 
+    vendor.display.config@2.0 \
+    libdisplayconfig.qti
 
 RECOVERY_LIBRARY_SOURCE_FILES += \
     $(TARGET_OUT_SHARED_LIBRARIES)/libion.so \
     $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/libdisplayconfig.qti.so \
     $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/vendor.display.config@1.0.so \
     $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/vendor.display.config@2.0.so
-
-PRODUCT_PACKAGES += \
-    qcom_decrypt \
-    qcom_decrypt_fbe
