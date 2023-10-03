@@ -24,7 +24,7 @@ PRODUCT_RELEASE_NAME := moonstone
 
 ## Device identifier. This must come after all inclusions
 PRODUCT_DEVICE := moonstone
-PRODUCT_NAME := twrp_moonstone
+PRODUCT_NAME := omni_moonstone
 PRODUCT_BRAND := POCO
 PRODUCT_MODEL := POCO X5
 PRODUCT_MANUFACTURER := Xiaomi
