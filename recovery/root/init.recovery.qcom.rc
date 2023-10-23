@@ -25,12 +25,14 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-	# TWRP Decryption Scrripts
-	import /init.recovery.qcom_decrypt.rc
+import /init.recovery.qcom_decrypt.rc
 
-on early-fs
-    write /proc/sys/kernel/sched_lib_name "recovery,magiskboot,Updater,updater,update_engine_sideload"
-    write /proc/sys/kernel/sched_lib_mask_force 255
+service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
+    user root
+    group root
+    disabled
+    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib:/system/lib64:/system/lib:/sbin
+    seclabel u:r:recovery:s0
 
 on fs
     export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw
@@ -52,4 +54,5 @@ on property:twrp.modules.loaded=true
     write /sys/kernel/boot_adsp/boot 1
     wait /sys/class/power_supply/battery
     start health-hal-2-1
+    start vendor.qti.vibrator
     umount /firmware
