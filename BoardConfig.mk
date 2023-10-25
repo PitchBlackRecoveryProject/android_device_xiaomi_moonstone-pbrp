@@ -45,8 +45,6 @@ ENABLE_SCHEDBOOST := true
 
 # Bootloader
 PRODUCT_PLATFORM := holi
-TARGET_BOOTLOADER_BOARD_NAME := holi
-TARGET_NO_BOOTLOADER := true
 TARGET_USES_UEFI := true
 
 # Platform
